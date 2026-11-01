@@ -1,0 +1,5 @@
+Legacy scripts excluded from this release (pre-existing syntax errors; superseded):
+db_vuln_scanner_ultra.py
+generate_attack_library.py
+generate_attack_library_simple.py
+generate_final_report.py

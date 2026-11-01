@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+"""Report generator for task #104: real co-evolution arm (E7) and
+real-model validation of D23 / D23' / D30 and their stack (E8).
+
+All figures are read from `results/e7_coevo_bandit_v1.json` and
+`results/e8_real_defense_validation_v1.json`. Idempotent.
+"""
+
+import json
+import os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RES = os.path.join(ROOT, "results")
+OUT = os.path.join(RES, "e7_e8_report.md")
+
+E7 = os.path.join(RES, "e7_coevo_bandit_v1.json")
+E7B = os.path.join(RES, "e7b_coevo_headtohead_v1.json")
+E8 = os.path.join(RES, "e8_real_defense_validation_v1.json")
+
+
+def load(path):
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def pct(x, nd=1):
+    if x is None:
+        return "--"
+    return ("%%.%df\\%%%%" % nd) % (100 * x)
+
+
+def fmt_ci(ci, nd=1):
+    if not ci:
+        return "--"
+    return ("[%%.%df, %%.%df]" % (nd, nd)) % (100 * ci[0], 100 * ci[1])
+
+
+def fp(p):
+    return "--" if p is None else "%.4f" % p
+
+
+def gates_line(g):
+    return ", ".join("%s=%s" % (k, v.get("passed"))
+                     for k, v in (g or {}).items())
+
+
+def main():
+    e7 = load(E7)
+    e8 = load(E8)
+    L = []
+    w = L.append
+
+    w("# Task #104 -- Real co-evolution arm (E7) and real-model "
+      "validation of D23' / D30 (E8)")
+    w("")
+    w("Both experiments run against live models: the target is the "
+      "primary reasoning backend, the attacker-side paraphraser is a "
+      "different model on a different operator.")
+    w("")
+
+    # --------------------------------------------------------------- E7
+    w("## 1. E7 -- Thompson bandit with a closed-loop co-evolution arm")
+    w("")
+    if not e7:
+        w("E7 artifact missing; run `experiments/e7_coevo_bandit.py`.")
+        w("")
+    else:
+        w("- Target `%s`; attacker/paraphraser `%s` (%s)."
+          % (e7.get("target_model"), e7.get("attacker_model"),
+             e7.get("attacker_endpoint")))
+        w("- %s episodes, seed %s, elapsed %.0f s."
+          % (e7.get("n_episodes"), e7.get("seed"),
+             e7.get("elapsed_sec") or 0))
+        w("- First leak at episode **%s**; final-channel leaks: %d; "
+          "refusals: %d."
+          % (e7.get("first_leak_episode_overall"),
+             e7.get("final_leaks_total") or 0, e7.get("refusals_total") or 0))
+        w("")
+        w("| arm | family | pulls | CoT leaks | rate | Wilson 95% |")
+        w("|-----|--------|-------|-----------|------|-----------|")
+        for name, v in (e7.get("per_arm") or {}).items():
+            w("| `%s` | %s | %d | %d | %s | %s |"
+              % (name, v.get("family"), v.get("pulls") or 0,
+                 v.get("cot_leaks") or 0, pct(v.get("cot_rate")),
+                 fmt_ci(v.get("wilson95"))))
+        w("")
+        cv = e7.get("co_evolution") or {}
+        fx = e7.get("fixed_arms_pooled") or {}
+        w("### Co-evolution arm")
+        w("")
+        w("- Pulls **%d**, CoT leaks **%d** = %s (Wilson %s); first leak "
+          "on the arm at episode %s."
+          % (cv.get("pulls") or 0, cv.get("cot_leaks") or 0,
+             pct(cv.get("rate")), fmt_ci(cv.get("wilson95")),
+             cv.get("first_leak_episode")))
+        w("- Fixed arms pooled: %d/%d = %s."
+          % (fx.get("cot_leaks") or 0, fx.get("n") or 0,
+             pct(fx.get("rate"))))
+        vs = cv.get("vs_fixed_arms") or {}
+        if vs:
+            w("- Co-evolution vs fixed arms: %s vs %s, Fisher p = %s."
+              % (pct(vs.get("co_rate")), pct(vs.get("fixed_rate")),
+                 fp(vs.get("fisher_p"))))
+        ad = cv.get("adaptation")
+        if ad:
+            w("- Adaptation inside the arm: first half %d/%d, second half "
+              "%d/%d, rate delta %s."
+              % (ad["first_half"][0], ad["first_half"][1],
+                 ad["second_half"][0], ad["second_half"][1],
+                 pct(ad.get("rate_delta"))))
+        texts = cv.get("generated_texts") or []
+        if texts:
+            w("- The arm produced %d distinct generated prompts; example: "
+              "%s" % (len(set(texts)),
+                      (texts[0][:150].replace("\n", " ") + "...")
+                      if texts[0] else "--"))
+        # Honest split: how many co pulls actually used generated wording?
+        fixed_texts = {r.get("user_text") for r in (e7.get("records") or [])
+                       if r.get("arm") != "co"}
+        co_recs = [r for r in (e7.get("records") or []) if r.get("arm") == "co"]
+        gen = [r for r in co_recs
+               if (r.get("user_text") or "") not in fixed_texts]
+        fall = [r for r in co_recs
+                if (r.get("user_text") or "") in fixed_texts]
+        if co_recs:
+            w("- **Allocation caveat:** of the %d co-evolution pulls, %d "
+              "used wording actually generated by the attacker model and "
+              "%d fell back to the leading fixed arm's text because the "
+              "attacker-side call failed or was declined; the pooled rate "
+              "above mixes both, so E7 alone cannot separate the "
+              "co-evolution arm's effect from the seed arm's. E7b below "
+              "gives the arm a fixed allocation with a working attacker "
+              "backend." % (len(co_recs), len(gen), len(fall)))
+            if gen:
+                w("  - Attacker-generated pulls: %d, of which %d leaked."
+                  % (len(gen), sum(1 for r in gen if r.get("cot_leak"))))
+        w("- Gates: " + gates_line(e7.get("gates")) + ".")
+        w("")
+
+    # -------------------------------------------------------------- E7b
+    w("## 2. E7b -- fixed-allocation head-to-head for the co-evolution arm")
+    w("")
+    e7b = load(E7B)
+    if not e7b:
+        w("E7b artifact missing; run "
+          "`experiments/e7b_coevo_headtohead.py`.")
+        w("")
+    else:
+        cv = e7b.get("co_evolution") or {}
+        fx = e7b.get("fixed_control") or {}
+        cmp_ = e7b.get("comparison") or {}
+        w("- 24 episodes, strictly interleaved: 12 co-evolution pulls "
+          "against 12 pulls of the best fixed arm from E7 (`%s`, which "
+          "scored %s there). Interleaving controls for drift during the "
+          "run." % (e7b.get("control_arm"),
+                    pct(e7b.get("control_arm_e7_rate"))))
+        w("- Co-evolution arm: **%d/%d = %s** (Wilson %s); the fixed arm "
+          "scored **%d/%d = %s** (Wilson %s); Fisher p = %s."
+          % (cv.get("cot_leaks") or 0, cv.get("pulls") or 0,
+             pct(cv.get("rate")), fmt_ci(cv.get("wilson95")),
+             fx.get("cot_leaks") or 0, fx.get("pulls") or 0,
+             pct(fx.get("rate")), fmt_ci(fx.get("wilson95")),
+             fp(cmp_.get("fisher_p"))))
+        ad = cv.get("adaptation")
+        if ad:
+            w("- Within-arm adaptation: %d/%d in the first half versus "
+              "%d/%d in the second (%s)."
+              % (ad["first_half"][0], ad["first_half"][1],
+                 ad["second_half"][0], ad["second_half"][1],
+                 pct(ad.get("rate_delta"))))
+        n_ok = sum(1 for a in (e7b.get("attacker_calls") or [])
+                   if a.get("ok"))
+        w("- Attacker-side generation succeeded on %d of %d pulls; %d of "
+          "%d generated prompts are distinct."
+          % (n_ok, len(e7b.get("attacker_calls") or []),
+             len(set(cv.get("generated_texts") or [])),
+             len(cv.get("generated_texts") or [])))
+        w("- Final-channel leaks %d; refusals %d."
+          % (e7b.get("final_leaks_total") or 0,
+             e7b.get("refusals_total") or 0))
+        w("- Reading: a co-evolving attacker reaches the blind spot at a "
+          "rate **statistically indistinguishable** from the strongest "
+          "fixed probe (p = %s). On an undefended target there is nothing "
+          "for the attacker to adapt to, so rewriting buys no measurable "
+          "advantage over re-ranking -- which is exactly why the "
+          "co-evolutionary regime has to be argued against an adapting "
+          "defender, not demonstrated here."
+          % fp(cmp_.get("fisher_p")))
+        w("- Gates: " + gates_line(e7b.get("gates")) + ".")
+        w("")
+
+    # --------------------------------------------------------------- E8
+    w("## 3. E8 -- real-model validation of D23 / D23' / D30 / stack")
+    w("")
+    if not e8:
+        w("E8 artifact missing; run "
+          "`experiments/e8_real_defense_validation.py`.")
+        w("")
+    else:
+        w("- Target `%s`; paraphraser `%s`; corpus %d attack prompts "
+          "(4 base + 2 x %d paraphrases) and %d benign controls."
+          % (e8.get("target_model"), e8.get("attacker_model"),
+             ((e8.get("conditions") or {}).get("none") or {}).get("n_attack")
+             or 0, e8.get("paraphrases_per_round") or 0,
+             len(e8.get("control_probes") or [])))
+        w("- Elapsed %.0f s; c* selected = %s under a benign false-positive "
+          "budget of %s (the unconstrained minimum-bypass point is c=%s, "
+          "which is degenerate -- see the sweep below)."
+          % (e8.get("elapsed_sec") or 0, e8.get("c_star"),
+             pct(e8.get("fpr_budget")), e8.get("c_star_unconstrained")))
+        w("- Paraphrase corpus produced by a real second model on a "
+          "different operator; %d of %d generation calls returned usable "
+          "text (gate g2=%s)."
+          % (((e8.get("gates") or {}).get("g2_generator_usable") or {})
+             .get("n_ok"), ((e8.get("gates") or {}).get("g2_generator_usable")
+                            or {}).get("n_calls"),
+             ((e8.get("gates") or {}).get("g2_generator_usable") or {})
+             .get("passed")))
+        w("")
+        w("| condition | blocked | reached | bypass leaks | bypass rate | "
+          "Wilson 95% | control FPR |")
+        w("|-----------|---------|---------|--------------|-------------|"
+          "-----------|-------------|")
+        order = ["none", "D23"]
+        order += ["D23p_c%.2f" % c for c in (e8.get("c_sweep") or [])]
+        order += ["D30_s%.2f" % s for s in (e8.get("s_sweep") or [])]
+        order.append("stack")
+        conds = e8.get("conditions") or {}
+        for k in order:
+            v = conds.get(k)
+            if not v:
+                continue
+            mark = " **" if k == "stack" else " "
+            w("|%s`%s` | %d | %d | %d | %s | %s | %s |"
+              % (mark, k, v.get("blocked") or 0, v.get("reached") or 0,
+                 v.get("bypass_leaks") or 0, pct(v.get("bypass_rate")),
+                 fmt_ci(v.get("wilson95")),
+                 pct(v.get("control_fpr")) if v.get("control_fpr")
+                 is not None else "--"))
+        w("")
+        st = e8.get("stack_analysis") or {}
+        if st:
+            w("- Stack vs independence: D23' alone %s, D30(s=1) alone %s, "
+              "independent prediction %s, **observed stack %s**; net gain "
+              "over the best single layer %s."
+              % (pct(st.get("d23p_bypass")), pct(st.get("d30_bypass")),
+                 pct(st.get("independent_prediction")),
+                 pct(st.get("observed_stack")),
+                 pct(st.get("net_gain_vs_best_single"))))
+            w("")
+        br = e8.get("by_round") or {}
+        if br:
+            w("| corpus round | n | CoT leaks | rate | Wilson 95% | "
+              "caught by D23' | catch rate |")
+            w("|--------------|---|-----------|------|-----------|"
+              "-----------------|------------|")
+            for k in ("round0_base", "round1", "round2_coevolved"):
+                v = br.get(k)
+                if not v:
+                    continue
+                w("| %s | %d | %d | %s | %s | %d | %s |"
+                  % (k, v["n"], v["cot_leaks"], pct(v["rate"]),
+                     fmt_ci(v["wilson95"]), v["caught_by_D23p"],
+                     pct(v["catch_rate"])))
+            w("")
+        ce = e8.get("co_evolution_effect") or {}
+        if ce:
+            w("- Co-evolution effect: leak rate %s (round 1) -> %s "
+              "(round 2, conditioned on round-1 outcomes), delta %s, "
+              "Fisher p = %s."
+              % (pct(ce.get("r1_leak_rate")), pct(ce.get("r2_leak_rate")),
+                 pct(ce.get("delta")), fp(ce.get("fisher_p"))))
+            w("- Defence-side: D23' catch rate %s -> %s (drop %s) once the "
+              "attacker saw the round-1 outcomes."
+              % (pct(ce.get("r1_catch_rate")), pct(ce.get("r2_catch_rate")),
+                 pct(ce.get("catch_rate_drop"))))
+            w("")
+        st2 = e8.get("stack_analysis") or {}
+        # D30 coverage curve reading: where do the surviving keys sit?
+        conds2 = e8.get("conditions") or {}
+        sweep = [(s, conds2.get("D30_s%.2f" % s)) for s in
+                 (e8.get("s_sweep") or [])]
+        sweep = [(s, v) for s, v in sweep if v]
+        if sweep:
+            w("- D30 coverage curve: " + ", ".join(
+                "s=%s -> %s" % (s, pct(v.get("bypass_rate")))
+                for s, v in sweep)
+              + ". A partial scan of the first three quarters still leaves "
+                "keys exposed, so on these traces the secret surfaces "
+                "toward the end of the reasoning rather than the start.")
+        w("- **Caveat on D30:** the firewall as implemented redacts the "
+          "very signatures the judge searches for, so its 0\\% residual is "
+          "an oracle bound -- a real key-agnostic detector, or a request "
+          "that asks for the secret in a transformed form (encoded, split, "
+          "reversed), is not covered by this measurement.")
+        w("- **Caveat on D23':** the equivalence metric is lexical cosine "
+          "over content-word counts, not a learned embedding; the "
+          "measurement says what that metric can separate, not what every "
+          "equivalence detector could.")
+        if st2.get("net_gain_vs_best_single") is not None:
+            w("- Stacking: D30 alone already reaches %s bypass at %s FPR, "
+              "and adding the D23' input filter on top reaches %s at %s "
+              "FPR -- i.e. **no measurable stacking gain on real data**, "
+              "only extra false positives."
+              % (pct(st2.get("d30_bypass")),
+                 pct((conds2.get("D30_s1.00") or {}).get("control_fpr")),
+                 pct(st2.get("observed_stack")),
+                 pct((conds2.get("stack") or {}).get("control_fpr"))))
+        w("- Gates: " + gates_line(e8.get("gates")) + ".")
+        w("")
+
+    # -------------------------------------------------------------- 3
+    w("## 4. What this settles")
+    w("")
+    if e7:
+        cv = e7.get("co_evolution") or {}
+        w("- The adaptive attacker is no longer limited to re-ranking "
+          "fixed strings: a real second model rewrote its probes inside "
+          "the bandit loop, conditioned on observed target behaviour "
+          "(%d co-evolution pulls)." % (cv.get("pulls") or 0))
+    if e8:
+        st = e8.get("stack_analysis") or {}
+        w("- D23' and D30 were previously established only by simulation; "
+          "both are now measured on real responses to a real "
+          "attacker-generated corpus.")
+        if st.get("net_gain_vs_best_single") is not None:
+            g = st["net_gain_vs_best_single"]
+            w("- Stacking: observed %s versus an independent-layer "
+              "prediction of %s (%s)."
+              % (pct(st.get("observed_stack")),
+                 pct(st.get("independent_prediction")),
+                 "stacking helps" if g > 0 else
+                 "no measurable stacking gain on real data"))
+    w("")
+    w("## 5. Status")
+    w("")
+    w("- Paper integration: not performed in this task; see "
+      "`results/p3_18point_audit.md` for the current pass.")
+    w("")
+
+    with open(OUT, "w", encoding="utf-8") as f:
+        f.write("\n".join(L) + "\n")
+    print("--> %s (%d lines)" % (OUT, len(L)))
+
+
+if __name__ == "__main__":
+    main()

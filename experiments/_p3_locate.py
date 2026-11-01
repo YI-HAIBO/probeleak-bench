@@ -1,0 +1,11 @@
+P = r"C:\Users\Yi\WorkBuddy\2026-10-10-18-49-43\llm-attack-eval\paper\p3_tifs.tex"
+data = open(P, "rb").read().decode("utf-8")
+i = data.find("stays at zero in all models")
+print("idx:", i)
+print(repr(data[i - 260:i + 160]))
+print("---- g2 ----")
+j = data.find("(g2 did not hold")
+print(repr(data[j - 120:j + 140]))
+print("---- minute ----")
+k = data.find("1{,}500--3{,}000 tokens per")
+print(repr(data[k - 80:k + 60]))

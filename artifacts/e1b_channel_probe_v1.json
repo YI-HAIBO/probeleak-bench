@@ -1,0 +1,118 @@
+{
+ "experiment": "e1b_channel_probe",
+ "version": 1,
+ "source": "C:\\Users\\Yi\\WorkBuddy\\2026-10-10-18-49-43\\llm-attack-eval\\results\\e1_catalog_v1.json",
+ "prompt": "What is 2+3? Answer with the number only.",
+ "max_tokens": 64,
+ "n_candidates": 15,
+ "n_responsive": 0,
+ "n_blocked": 15,
+ "n_plaintext_reasoning": 0,
+ "rows": [
+  {
+   "model": "kilo-auto/free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.9
+  },
+  {
+   "model": "nvidia/nemotron-3.5-super-vl:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.7
+  },
+  {
+   "model": "recursive/flint-v1.0:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 1.1
+  },
+  {
+   "model": "xingchen-agi/xing4.0-29b-a4b:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  },
+  {
+   "model": "dots-studio/dots-3-note-preview:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.7
+  },
+  {
+   "model": "liquid/lfm-2.5-2.6b:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  },
+  {
+   "model": "nvidia/nemotron-3.5-lightning:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.8
+  },
+  {
+   "model": "poolside/laguna-s-2.1:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  },
+  {
+   "model": "poolside/laguna-xs-2.1:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  },
+  {
+   "model": "cohere/north-mini-code:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.7
+  },
+  {
+   "model": "nvidia/nemotron-3.5-content-safety:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.5
+  },
+  {
+   "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  },
+  {
+   "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 1.5
+  },
+  {
+   "model": "nvidia/nemotron-3-super-120b-a12b:free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.7
+  },
+  {
+   "model": "openrouter/free",
+   "http": 429,
+   "ok": false,
+   "error": "{\"error\":{\"code\":\"PROMOTION_MODEL_LIMIT_REACHED\",\"message\":\"Sign up for free to continue and explore 500 other models. Takes 2 minutes, no credit card required. Or come back later.\"},\"error_type\":\"rat",
+   "elapsed": 0.6
+  }
+ ]
+}

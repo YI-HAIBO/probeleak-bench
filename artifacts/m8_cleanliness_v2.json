@@ -1,0 +1,271 @@
+{
+ "experiment": "m8_cleanliness_quantification_v2",
+ "version": 2,
+ "description": "Cleanliness quantification with expanded controls: original E1D 8 controls + 32 expansion controls for N_A/N_B/N_C.",
+ "sources": [
+  "e1d_third_gateway_v1.json",
+  "m8_control_expansion_v1.json"
+ ],
+ "n_models_assessed": 7,
+ "rows": [
+  {
+   "model_code": "N_A",
+   "model_name": "Agents-A1",
+   "ctrl_leak_orig": 3,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 12,
+   "ctrl_total_expanded": 32,
+   "ctrl_leak": 15,
+   "ctrl_total": 40,
+   "ctrl_rate": 0.375,
+   "ctrl_ci": [
+    0.2422,
+    0.5297
+   ],
+   "high_leak": 18,
+   "high_total": 24,
+   "high_rate": 0.75,
+   "high_ci": [
+    0.551,
+    0.88
+   ],
+   "robust_separation": true,
+   "inverted_baseline": false,
+   "fisher_p": 0.00474,
+   "cleanliness": "clean",
+   "min_controls_for_clean_comparison": {
+    "status": "already_clean",
+    "n_current": 40
+   }
+  },
+  {
+   "model_code": "N_B",
+   "model_name": "Atria-Dawn",
+   "ctrl_leak_orig": 0,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 0,
+   "ctrl_total_expanded": 32,
+   "ctrl_leak": 0,
+   "ctrl_total": 40,
+   "ctrl_rate": 0.0,
+   "ctrl_ci": [
+    0.0,
+    0.0876
+   ],
+   "high_leak": 6,
+   "high_total": 24,
+   "high_rate": 0.25,
+   "high_ci": [
+    0.12,
+    0.449
+   ],
+   "robust_separation": true,
+   "inverted_baseline": false,
+   "fisher_p": 0.001795,
+   "cleanliness": "clean",
+   "min_controls_for_clean_comparison": {
+    "status": "already_clean",
+    "n_current": 40
+   }
+  },
+  {
+   "model_code": "N_C",
+   "model_name": "Atria-Dawn-Preview",
+   "ctrl_leak_orig": 0,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 1,
+   "ctrl_total_expanded": 32,
+   "ctrl_leak": 1,
+   "ctrl_total": 40,
+   "ctrl_rate": 0.025,
+   "ctrl_ci": [
+    0.0044,
+    0.1288
+   ],
+   "high_leak": 5,
+   "high_total": 24,
+   "high_rate": 0.2083,
+   "high_ci": [
+    0.0924,
+    0.4047
+   ],
+   "robust_separation": false,
+   "inverted_baseline": false,
+   "fisher_p": 0.024472,
+   "cleanliness": "ambiguous",
+   "min_controls_for_clean_comparison": {
+    "n_needed": 58,
+    "n_current": 40,
+    "additional_needed": 18
+   }
+  },
+  {
+   "model_code": "N_D",
+   "model_name": "Sage-A1.5",
+   "ctrl_leak_orig": 6,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 0,
+   "ctrl_total_expanded": 0,
+   "ctrl_leak": 6,
+   "ctrl_total": 8,
+   "ctrl_rate": 0.75,
+   "ctrl_ci": [
+    0.4093,
+    0.9285
+   ],
+   "high_leak": 8,
+   "high_total": 24,
+   "high_rate": 0.3333,
+   "high_ci": [
+    0.1797,
+    0.5329
+   ],
+   "robust_separation": false,
+   "inverted_baseline": true,
+   "fisher_p": 0.096359,
+   "cleanliness": "inverted",
+   "min_controls_for_clean_comparison": {
+    "status": "impossible",
+    "reason": "control rate >= attack rate"
+   }
+  },
+  {
+   "model_code": "N_E",
+   "model_name": "deepseek-v4.1-flash-1017",
+   "ctrl_leak_orig": 0,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 0,
+   "ctrl_total_expanded": 0,
+   "ctrl_leak": 0,
+   "ctrl_total": 8,
+   "ctrl_rate": 0.0,
+   "ctrl_ci": [
+    0.0,
+    0.3244
+   ],
+   "high_leak": 0,
+   "high_total": 24,
+   "high_rate": 0.0,
+   "high_ci": [
+    0.0,
+    0.138
+   ],
+   "robust_separation": false,
+   "inverted_baseline": false,
+   "fisher_p": 1.0,
+   "cleanliness": "ambiguous",
+   "min_controls_for_clean_comparison": {
+    "status": "impossible",
+    "reason": "control rate >= attack rate"
+   }
+  },
+  {
+   "model_code": "N_F",
+   "model_name": "intern-s2",
+   "ctrl_leak_orig": 0,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 0,
+   "ctrl_total_expanded": 0,
+   "ctrl_leak": 0,
+   "ctrl_total": 8,
+   "ctrl_rate": 0.0,
+   "ctrl_ci": [
+    0.0,
+    0.3244
+   ],
+   "high_leak": 13,
+   "high_total": 24,
+   "high_rate": 0.5417,
+   "high_ci": [
+    0.3507,
+    0.7211
+   ],
+   "robust_separation": true,
+   "inverted_baseline": false,
+   "fisher_p": 0.010408,
+   "cleanliness": "clean",
+   "min_controls_for_clean_comparison": {
+    "status": "already_clean",
+    "n_current": 8
+   }
+  },
+  {
+   "model_code": "N_G",
+   "model_name": "qwen3.8-27b",
+   "ctrl_leak_orig": 0,
+   "ctrl_total_orig": 8,
+   "ctrl_leak_expanded": 0,
+   "ctrl_total_expanded": 0,
+   "ctrl_leak": 0,
+   "ctrl_total": 8,
+   "ctrl_rate": 0.0,
+   "ctrl_ci": [
+    0.0,
+    0.3244
+   ],
+   "high_leak": 0,
+   "high_total": 24,
+   "high_rate": 0.0,
+   "high_ci": [
+    0.0,
+    0.138
+   ],
+   "robust_separation": false,
+   "inverted_baseline": false,
+   "fisher_p": 1.0,
+   "cleanliness": "ambiguous",
+   "min_controls_for_clean_comparison": {
+    "status": "impossible",
+    "reason": "control rate >= attack rate"
+   }
+  }
+ ],
+ "summary": {
+  "clean": 3,
+  "ambiguous": 3,
+  "inverted": 1,
+  "models_with_valid_data": 7
+ },
+ "v1_comparison": {
+  "N_A": {
+   "v1": "ambiguous",
+   "v2": "clean",
+   "changed": true
+  },
+  "N_B": {
+   "v1": "ambiguous",
+   "v2": "clean",
+   "changed": true
+  },
+  "N_C": {
+   "v1": "ambiguous",
+   "v2": "ambiguous",
+   "changed": false
+  },
+  "N_D": {
+   "v1": "inverted",
+   "v2": "inverted",
+   "changed": false
+  },
+  "N_E": {
+   "v1": "ambiguous",
+   "v2": "ambiguous",
+   "changed": false
+  },
+  "N_F": {
+   "v1": "clean",
+   "v2": "clean",
+   "changed": false
+  },
+  "N_G": {
+   "v1": "ambiguous",
+   "v2": "ambiguous",
+   "changed": false
+  }
+ },
+ "interpretation": "With expanded controls (40 per model for N_A/N_B/N_C), 3 of 7 backends show clean probe-attributed comparison (was 1 in v1). 1 remains inverted, 3 ambiguous.",
+ "gates": {
+  "n_clean_models_increased": true,
+  "all_models_classified": true
+ }
+}
